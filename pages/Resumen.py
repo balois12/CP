@@ -1,19 +1,14 @@
-import pip
-pip.main(["install","openpyxl"])
+#import pip
+#pip.main(["install","openpyxl"])
 import streamlit as st
 import pandas as pd
-import statistics
-import openpyxl
-from openpyxl import load_workbook
-from openpyxl.utils.dataframe import dataframe_to_rows
+#import openpyxl
+#from openpyxl import load_workbook
+#from openpyxl.utils.dataframe import dataframe_to_rows
 import numpy as np
 import matplotlib.pyplot as plt
 import altair as alt
 
-#PC CASA
-#DATA = 'D:\OneDrive - Tecnológica de Alimentos S.A\Balois -2024\MAT-MOD\Ratios 2024-1\BD.xlsx'
-#LAPTOP TASA
-#DATA = 'C:\\Users\\barevalo\\OneDrive - Tecnológica de Alimentos S.A\\Balois -2024\\MAT-MOD\\Ratios 2024-1\\BD.xlsx'
 DATA = 'BD.xlsx'
 
 PD_MAT = pd.read_excel(DATA,sheet_name='MAT')
