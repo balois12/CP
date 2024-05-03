@@ -1,5 +1,4 @@
-import pip
-pip.main(["install","openpyxl"])
+
 import streamlit as st
 
 #st.page_link("pages/Materiales.py", label="Materiales", icon="⚓")
