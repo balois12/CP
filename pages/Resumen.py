@@ -1,10 +1,7 @@
-#import pip
-#pip.main(["install","openpyxl"])
+import pip
+pip.main(["install","openpyxl"])
 import streamlit as st
 import pandas as pd
-#import openpyxl
-#from openpyxl import load_workbook
-#from openpyxl.utils.dataframe import dataframe_to_rows
 import numpy as np
 import matplotlib.pyplot as plt
 import altair as alt
