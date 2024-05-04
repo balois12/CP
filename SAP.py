@@ -31,8 +31,8 @@ session = connection.Children(0)
 now = datetime.now()
 
 # Solicitar al usuario que ingrese el valor para la variable
-PEP = input("Por favor, el PEP del proyecto: ")
-
+#PEP = input("Por favor, el PEP del proyecto: ")
+PEP = 'GP/57-124'
 # Crear una nueva variable sin el sufijo
 PEP_SIMPLE = PEP.split("-")[0]
 
