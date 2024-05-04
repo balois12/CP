@@ -6,7 +6,7 @@ def run_python_script():
     # Ruta al script de Python que deseas ejecutar
     script_path = "SAP.py"
     # Ejecutar el script de Python
-    subprocess.Popen(["python", script_path], shell=False)
+    subprocess.Popen(["python", script_path], shell=True)
 
 st.title("Ejecutar Script de Python con Streamlit")
 if st.button("Ejecutar Script"):
