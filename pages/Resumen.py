@@ -9,7 +9,9 @@ DATA = 'BD.xlsx'
 PD_MAT = pd.read_excel(DATA,sheet_name='MAT')
 PD_MOD = pd.read_excel(DATA,sheet_name='MAT-MOD')
 PD_MAT_CODE = pd.read_excel(DATA,sheet_name='MAT-CODE')
-PD_ESFUERZO = pd.read_excel(DATA,sheet_name='ESFUERZO') 
+PD_ESFUERZO = pd.read_excel(DATA,sheet_name='ESFUERZO')
+PD_ESTADIA = pd.read_excel(DATA,sheet_name='VARADA')
+
 st.title ('Ratios de producción Temp 2024-1')
 st.sidebar.header('Proyectos	:anchor:')
 select_proyecto = st.sidebar.multiselect('Seleciona uno o más proyectos',PD_MOD['Proyecto'].drop_duplicates().sort_values(), key='proyectos')
@@ -75,6 +77,7 @@ if genre == "Gas CO2" :
 
 df = df[df['Proyecto'].isin(select_proyecto)]
 df = df[df['Categoría'].isin(categoria)]
+df_estadia = PD_ESTADIA[PD_ESTADIA['Proyecto'].isin(select_proyecto)].drop('PEP', axis=1).drop('PEP2', axis=1)
 # Resetear los índices
 df = df.reset_index(drop=True)
 
@@ -130,6 +133,7 @@ st.bar_chart(data=df1, x="Proyecto", y="MOD", color=color, width=0, height=600, 
 
 # Tabla con los datos
 st.write("Costo directo de mano de obra:")
+df1 = pd.merge(df1, df_estadia, on='Proyecto', how='inner')
 st.dataframe(df1, width=800, height=None)
 
 #-----------------------------------------------------------------------------------------------------------------
@@ -145,4 +149,5 @@ st.bar_chart(data=df2, x="Proyecto", y="MOD", color=color, width=0, height=600, 
 
 # Tabla con los datos
 st.write("Detalle del esfuerzo adicional:")
+df2 = pd.merge(df2, df_estadia, on='Proyecto', how='inner')
 st.dataframe(df2, width=800, height=None)
