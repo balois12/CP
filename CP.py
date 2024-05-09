@@ -1,8 +1,3 @@
-
-#st.page_link("pages/Materiales.py", label="Materiales", icon="⚓")
-#st.page_link("pages/Esfuerzo_adicional.py", label="Esfuerzo adicional", icon="👨‍🏭")
-#st.page_link("http://www.google.com", label="Google", icon="🌎")
-
 import streamlit as st
 import pandas as pd
 import requests
@@ -15,7 +10,6 @@ st.set_page_config(
     page_icon="🚢"
 )
 
-
 def load_lottieurl(url: str):
     r = requests.get(url)
     if r.status_code != 200:
@@ -27,7 +21,6 @@ lottie_bar = load_lottieurl("https://lottie.host/45873f27-7b33-4c92-b7de-789a6f0
 lottie_time = load_lottieurl("https://lottie.host/224546ac-5ccd-4c4e-8a1a-b345ca27d189/kWv8IKhYq3.json")
 
 DATA = 'BD.xlsx'
-
 PD_MAT = pd.read_excel(DATA,sheet_name='MAT')
 PD_MOD = pd.read_excel(DATA,sheet_name='MAT-MOD')
 PD_MAT_CODE = pd.read_excel(DATA,sheet_name='MAT-CODE')
@@ -40,23 +33,31 @@ with col1:
 with col2:   
     st.title ('Ratios de producción')
 
-    
 st.sidebar.header('Proyectos	:anchor:')
 select_proyecto = st.sidebar.multiselect('Seleciona uno o más proyectos',PD_MOD['Proyecto'].drop_duplicates().sort_values(), key='proyectos')
 categoria = st.sidebar.multiselect('Selecciona ESTRUCTURA, ADITAMENTOS',['CALD ESTRUCTURA', 'CALD ADITAMENTO'], key='categoria')
 
+# Definir DF de acero que será fijo
+y_acero = ['Peso (kg)']
+material_acero = ['PLANCHA', 'PLATINA', 'TUBO']
+codigo_material_acero = PD_MAT_CODE[PD_MAT_CODE['Tipo'].isin(material_acero)]
+df_acero = PD_MAT[PD_MAT['Material'].isin(codigo_material_acero['Material'])]
+df_acero= df_acero.groupby(['Proyecto','Categoría'])['Peso (kg)'].sum().reset_index()
+df_acero = df_acero[df_acero['Proyecto'].isin(select_proyecto)]
+df_acero = df_acero[df_acero['Categoría'].isin(categoria)]
+
+# Graficar usando Altair ACERO
+chart_ACERO = alt.Chart(df_acero).mark_bar().encode(
+    x='Proyecto:N',
+    y= alt.Y(f"{y_acero}:Q", title='Peso (kg)'),
+    color=alt.Color('Categoría:N', scale=alt.Scale(domain=['CALD ADITAMENTO', 'CALD ESTRUCTURA'], range=['#F24811', '#F7C90B ']), legend=None),
+    tooltip=['Proyecto', 'Categoría', 'Peso (kg)']
+).properties(width=1000, height=500)
+
 genre = st.sidebar.radio(
     "Materiales",
-    ["Acero", "Soldadura",  "Oxígeno", "Discos", "Gas Propano", "Gas CO2"],
-    captions = ["Total de acero procesado",  "Soldadura consumido",  "Oxígeno consumido","Discos consumidos", "Gas consumido", "Gas CO2 consumido"])
-if genre == 'Acero':
-    material = ['PLANCHA', 'PLATINA', 'TUBO']
-    y = ['Peso (kg)']
-    color = ['#FB7D06', '#FBBC06']
-    codigo_material = PD_MAT_CODE[PD_MAT_CODE['Tipo'].isin(material)]
-    df = PD_MAT[PD_MAT['Material'].isin(codigo_material['Material'])]
-    df= df.groupby(['Proyecto','Categoría'])['Peso (kg)'].sum().reset_index()
-    st.write("Acero procesado")
+    ["Soldadura",  "Oxígeno", "Discos", "Gas Propano", "Gas CO2"],
+    captions = [  "Soldadura vs Acero",  "Oxígeno vs Acero","Discos vs Acero", "Gas vs Acero", "Gas CO2 vs Acero"])
 
 if genre == "Soldadura" :
     material = ['SOLDADURA']
@@ -65,7 +66,11 @@ if genre == "Soldadura" :
     codigo_material = PD_MAT_CODE[PD_MAT_CODE['Tipo'].isin(material)]
     df = PD_MAT[PD_MAT['Material'].isin(codigo_material['Material'])]
     df = df.groupby(['Proyecto','Categoría'])['Cantidad tomada'].sum().reset_index()
-    st.write("Soldadura empleada (kg)")
+    col1, col2 =st.columns([0.5,0.5])
+    with col1:
+            st.write("Soldadura (kg)")
+    with col2:   
+            st.write ('Acero (kg)')
 
 if genre == "Oxígeno" :
     material = ['OXIGENO']
@@ -74,8 +79,12 @@ if genre == "Oxígeno" :
     codigo_material = PD_MAT_CODE[PD_MAT_CODE['Tipo'].isin(material)]
     df = PD_MAT[PD_MAT['Material'].isin(codigo_material['Material'])]
     df = df.groupby(['Proyecto','Categoría'])['Cantidad tomada'].sum().reset_index()
-    st.write("Oxígeno consumido (m2)")
-
+    col1, col2 =st.columns([0.5,0.5])
+    with col1:
+            st.write("Oxígeno consumido (m2)")
+    with col2:   
+            st.write ('Acero (kg)')
+    
 if genre == "Discos" :
     material = ['DISCO CORTE','DISCO DESBASTE']
     y = ['Cantidad tomada']
@@ -83,8 +92,12 @@ if genre == "Discos" :
     codigo_material = PD_MAT_CODE[PD_MAT_CODE['Tipo'].isin(material)]
     df = PD_MAT[PD_MAT['Material'].isin(codigo_material['Material'])]
     df = df.groupby(['Proyecto','Categoría'])['Cantidad tomada'].sum().reset_index()
-    st.write("Discos consumidos")
-
+    col1, col2 =st.columns([0.5,0.5])
+    with col1:
+            st.write("Discos consumidos")
+    with col2:   
+            st.write ('Acero (kg)')
+    
 if genre == "Gas Propano" :
     material = ['GAS PROPANO']
     y = ['Cantidad tomada']
@@ -92,8 +105,12 @@ if genre == "Gas Propano" :
     codigo_material = PD_MAT_CODE[PD_MAT_CODE['Tipo'].isin(material)]
     df = PD_MAT[PD_MAT['Material'].isin(codigo_material['Material'])]
     df = df.groupby(['Proyecto','Categoría'])['Cantidad tomada'].sum().reset_index()
-    st.write("Gas Propano empleado (bot = 10kg)")
-
+    col1, col2 =st.columns([0.5,0.5])
+    with col1:
+            st.write("Gas Propano empleado (bot = 10kg)")
+    with col2:   
+            st.write ('Acero (kg)')
+    
 if genre == "Gas CO2" :
     material = ['GAS CO2']
     y = ['Cantidad tomada']
@@ -101,10 +118,15 @@ if genre == "Gas CO2" :
     codigo_material = PD_MAT_CODE[PD_MAT_CODE['Tipo'].isin(material)]
     df = PD_MAT[PD_MAT['Material'].isin(codigo_material['Material'])]
     df = df.groupby(['Proyecto','Categoría'])['Cantidad tomada'].sum().reset_index()
-    st.write("Gas CO2 empleado (kg)")
-
+    col1, col2 =st.columns([0.5,0.5])
+    with col1:
+            st.write("Gas CO2 empleado (kg)")
+    with col2:   
+            st.write ('Acero (kg)')
+    
 df = df[df['Proyecto'].isin(select_proyecto)]
 df = df[df['Categoría'].isin(categoria)]
+#ESTADIA
 df_estadia = PD_ESTADIA[PD_ESTADIA['Proyecto'].isin(select_proyecto)].drop('PEP', axis=1).drop('PEP2', axis=1)
 # Resetear los índices
 df = df.reset_index(drop=True)
@@ -113,13 +135,19 @@ df = df.reset_index(drop=True)
 chart = alt.Chart(df).mark_bar().encode(
     x='Proyecto:N',
     y= alt.Y(f"{y}:Q", title=y),
-    color=alt.Color('Categoría:N', scale=alt.Scale(domain=['CALD ADITAMENTO', 'CALD ESTRUCTURA'], range=color)),
+    color=alt.Color('Categoría:N', scale=alt.Scale(domain=['CALD ADITAMENTO', 'CALD ESTRUCTURA'], range=color), legend=None),
     tooltip=['Proyecto', 'Categoría', y[0]]
-).properties(width=1000, height=600)
+).properties(width=1000, height=500)
 
-st.altair_chart(chart, use_container_width=True)
+col1, col2 =st.columns([0.5,0.5])
+with col2:
+    st.altair_chart(chart_ACERO, use_container_width=True)
+with col1:   
+   st.altair_chart(chart, use_container_width=True)
 
 st.write("Detalle de los materiales:")
+#df_acero = df_acero.drop('PEP2', axis=1) // SERIA MEJOR TENER LA DATA COMPLETA CON EL ACERO DESDE LAS OPCIONES EN UN MISMO DATAFRAME
+#df = pd.merge(df, df_acero, on='Proyecto', how='inner')
 st.dataframe(df, width=800, height=None)
 #-----------------------------------------------------------------------------------------------------------------
 col1, col2 =st.columns([0.2,0.8])
